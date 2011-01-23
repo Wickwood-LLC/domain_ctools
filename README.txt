@@ -13,7 +13,7 @@ CONTENTS
 
 1.  Introduction
 2.  Features
-
+3.  Additional development
 
 ----
 1.  Introduction
@@ -29,4 +29,10 @@ The only feature currently implemented is an access control plugin
 for Page Manager. This plugin allows you to set domain-specific
 visibility rules for Pages and Panels.
 
+Note that CTools provides a "Reverse (NOT)" option when setting
+the access control. This value is not passed to the plugin and appears
+to be a CTools API error. Do not use this feature. It will fail.
+
+----
+3.  Additional development
 Additional features should be filed as patches against HEAD.

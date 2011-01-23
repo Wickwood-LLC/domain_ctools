@@ -23,7 +23,7 @@ function domain_ctools_domain_ctools_access() {
 /**
  * Settings form domain access plugin.
  */
-function domain_ctools_domain_access_settings(&$form, &$form_state, $conf) {
+function domain_ctools_domain_access_settings($form, &$form_state, $conf) {
   $domains = domain_domains();
   $options = array();
   $format = domain_select_format();
@@ -55,13 +55,15 @@ function domain_ctools_domain_access_settings(&$form, &$form_state, $conf) {
     $form['settings']['domains']['#multiple'] = TRUE;
     $form['settings']['domains']['#size'] = count($options) > 10 ? 10 : count($options);
   }
+
+  return $form;
 }
 
 /**
  * Check for access based on the currently active domain.
  */
-function domain_ctools_domain_access_check($conf, $context) {
-  global $_domain;
+function domain_ctools_domain_access_check($conf, $context, $plugin) {
+  $_domain = domain_get_domain();
   if ($conf['domain_site']) {
     return TRUE;
   }
@@ -78,7 +80,7 @@ function domain_ctools_domain_access_check($conf, $context) {
 /**
  * Provide a summary description based upon the checked domains.
  */
-function domain_ctools_domain_acesss_summary($conf, $context) {
+function domain_ctools_domain_acesss_summary($conf, $context, $plugin) {
   // Visible on all domains?
   if ($conf['domain_site'] || !isset($conf['domains'])) {
     $conf['domains'] = array();

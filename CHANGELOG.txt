@@ -5,6 +5,7 @@ CHANGELOG file for Domain CTools
 23-JAN-2011
 -- Branches DRUPAL-6--1.
 -- Moves HEAD to Drupal 7.
+-- Creates the 7.x.1.1 release.
 
 27-OCT-2009
 -- Catches an instance of _access invalid domains_.
