@@ -2,7 +2,9 @@
 name = Domain Ctools
 description = Chaos Tools plugins for Domain Access.
 package = Domain Access
-core = 6.x
+core = 7.x
 dependencies[] = domain
 dependencies[] = ctools
+files[] = domain_ctools.module
+files[] = plugins/access/domain.inc
 
