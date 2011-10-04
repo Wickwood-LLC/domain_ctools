@@ -4,7 +4,7 @@
  * @file Domain CTools.
  * Chaos Tools plugins for Domain Access.
  *
- * This file contains API hooks to regster the module.
+ * This file contains API hooks to register the module.
  */
 
 /**
@@ -25,3 +25,12 @@ function domain_ctools_ctools_plugin_directory($module, $plugin) {
   }
 }
 
+/**
+ * Provides a switch fo 7.x.2 / 7.x.3 compatibility.
+ */
+function domain_ctools_api_version() {
+  if (function_exists('domain_api_version')) {
+    return domain_api_version();
+  }
+  return 2;
+}

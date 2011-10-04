@@ -25,16 +25,40 @@ function domain_ctools_domain_ctools_access() {
 function domain_ctools_domain_access_settings($form, &$form_state, $conf) {
   $domains = domain_domains();
   $options = array();
+  // Check for old implementations.
+  if (domain_ctools_api_version() > 2 && isset($conf['domains'])) {
+    foreach ($conf['domains'] as $key => $value) {
+      $id = ($key == -1) ? 0 : $key;
+      if ($key == -1 || ($id > 0 && intval($key) == $key)) {
+        drupal_set_message(t('Domain CTools requires that you resave and/or re-export this setting.'), 'warning', FALSE);
+        if (isset($domains[$id]['machine_name'])) {
+          $conf['domains'][$domains[$id]['machine_name']] = empty($value) ? 0 : $domains[$id]['machine_name'];
+        }
+        if (isset($conf['domains'][$id])) {
+          unset($conf['domains'][$id]);
+        }
+        if (isset($conf['domains'][$key])) {
+          unset($conf['domains'][$key]);
+        }
+      }
+    }
+  }
+  // Set the form.
   $format = domain_select_format();
   foreach ($domains as $domain) {
     // Checkboxes cannot handles zeros.
-    if ($domain['domain_id'] == 0) {
+    if ($domain['domain_id'] === 0) {
       $domain['domain_id'] = -1;
     }
     // The domain must be valid.
     if ($domain['valid'] || user_access('access inactive domains')) {
       // Filter checkboxes but not select lists.
-      $options[$domain['domain_id']] = empty($format) ? check_plain($domain['sitename']) : $domain['sitename'];
+      if (domain_ctools_api_version() < 3) {
+        $options[$domain['domain_id']] = empty($format) ? check_plain($domain['sitename']) : $domain['sitename'];
+      }
+      else {
+        $options[$domain['machine_name']] = empty($format) ? check_plain($domain['sitename']) : $domain['sitename'];
+      }
     }
   }
   $form['settings']['domain_site'] = array(
@@ -69,8 +93,20 @@ function domain_ctools_domain_access_check($conf, $context, $plugin) {
   // Check each domain, converting -1 to 0.
   foreach ($conf['domains'] as $key => $value) {
     $id = ($key == -1) ? 0 : $key;
-    if (abs($value) > 0 && $id == $_domain['domain_id']) {
+    if (domain_ctools_api_version() < 3) {
+      if (abs($value) > 0 && $id == $_domain['domain_id']) {
+        return TRUE;
+      }
+    }
+    // Normal 7.x.3 support.
+    if ($key == $_domain['machine_name']) {
       return TRUE;
+    }
+    // Legacy 7.x.2 checking.
+    if ($key == -1 || ($id > 0 && intval($key) == $key)) {
+      if (abs($value) > 0 && $id == $_domain['domain_id']) {
+        return TRUE;
+      }
     }
   }
   return FALSE;
@@ -91,7 +127,21 @@ function domain_ctools_domain_acesss_summary($conf, $context, $plugin) {
     $names = array();
     foreach (array_filter($conf['domains']) as $key) {
       $id = ($key == -1) ? 0 : $key;
-      $names[] = check_plain($domains[$id]['sitename']);
+      if (domain_ctools_api_version() < 3) {
+        $names[] = check_plain($domains[$id]['sitename']);
+      }
+      else {
+        // In this case, it's an old access rule, so handle it nicely.
+        if ($key == -1 || ($id > 0 && intval($key) == $key)) {
+          $names[] = check_plain($domains[$id]['sitename']);
+          drupal_set_message(t('Domain CTools requires that you resave and/or re-export the Domain Access settings.'), 'warning', FALSE);
+        }
+        // This is proper 7.x.3 handling.
+        else {
+          $domain = domain_machine_name_load($key);
+          $names[] = check_plain($domain['sitename']);
+        }
+      }
     }
     // Print the proper message.
     if (empty($names) && empty($output)) {
