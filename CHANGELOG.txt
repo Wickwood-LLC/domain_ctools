@@ -1,6 +1,11 @@
 
 CHANGELOG file for Domain CTools
 
+04-OCT-2011
+-- Dev branch moved to 7.x-1.x.
+-- Support for Domain Access 7.x.3 added.
+-- Creates the 7.x.1.2 release.
+
 23-JAN-2011
 -- Branches DRUPAL-6--1.
 -- Moves HEAD to Drupal 7.
