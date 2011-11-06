@@ -87,26 +87,37 @@ function domain_ctools_domain_access_settings($form, &$form_state, $conf) {
  */
 function domain_ctools_domain_access_check($conf, $context, $plugin) {
   $_domain = domain_get_domain();
-  if ($conf['domain_site']) {
+  if (!empty($conf['domain_site'])) {
     return TRUE;
   }
-  // Check each domain, converting -1 to 0.
-  foreach ($conf['domains'] as $key => $value) {
-    $id = ($key == -1) ? 0 : $key;
-    if (domain_ctools_api_version() < 3) {
-      if (abs($value) > 0 && $id == $_domain['domain_id']) {
-        return TRUE;
-      }
+  if (empty($conf['domains'])) {
+    return FALSE;
+  }
+  $domain_list = array_filter($conf['domains']);
+  // On 7.x.2, the domain_id is a number, and 0 is stored as -1.
+  // Here we check if the install is DA 7.x.2 or if the ctools export was done
+  // using numeric keys.
+  if (domain_ctools_api_version() < 3 || isset($conf['domains'][-1])) {
+    $id = $_domain['domain_id'];
+    if ($id == 0) {
+      $id = -1;
     }
-    // Normal 7.x.3 support.
-    if ($key == $_domain['machine_name']) {
+    if (isset($domain_list[$id])) {
       return TRUE;
     }
-    // Legacy 7.x.2 checking.
-    if ($key == -1 || ($id > 0 && intval($key) == $key)) {
-      if (abs($value) > 0 && $id == $_domain['domain_id']) {
-        return TRUE;
-      }
+  }
+  // On 7.x.3, we use proper machine names as keys.
+  else {
+    // In some cases, Ctools gives us an imcomplete domain, which is odd.
+    // TODO: figure out why this is the case.
+    if (isset($_domain['machine_name'])) {
+      $machine_name = $_domain['machine_name'];
+    }
+    else {
+      $machine_name = domain_load_machine_name($_domain['domain_id']);
+    }
+    if (isset($domain_list[$machine_name])) {
+      return TRUE;
     }
   }
   return FALSE;
