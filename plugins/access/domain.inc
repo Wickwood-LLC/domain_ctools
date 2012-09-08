@@ -29,7 +29,7 @@ function domain_ctools_domain_access_settings($form, &$form_state, $conf) {
   if (domain_ctools_api_version() > 2 && isset($conf['domains'])) {
     foreach ($conf['domains'] as $key => $value) {
       $id = ($key == -1) ? 0 : $key;
-      if ($key == -1 || ($id > 0 && intval($key) == $key)) {
+      if ($key == -1 || ($id > 0 && intval($key) === $key)) {
         drupal_set_message(t('Domain CTools requires that you resave and/or re-export this setting.'), 'warning', FALSE);
         if (isset($domains[$id]['machine_name'])) {
           $conf['domains'][$domains[$id]['machine_name']] = empty($value) ? 0 : $domains[$id]['machine_name'];
@@ -143,7 +143,7 @@ function domain_ctools_domain_acesss_summary($conf, $context, $plugin) {
       }
       else {
         // In this case, it's an old access rule, so handle it nicely.
-        if ($key == -1 || ($id > 0 && intval($key) == $key)) {
+        if ($key == -1 || ($id > 0 && intval($key) === $key)) {
           $names[] = check_plain($domains[$id]['sitename']);
           drupal_set_message(t('Domain CTools requires that you resave and/or re-export the Domain Access settings.'), 'warning', FALSE);
         }
