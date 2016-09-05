@@ -23,6 +23,9 @@ function domain_ctools_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
     return "plugins/$plugin";
   }
+  if ($owner == 'page_manager') {
+    return 'plugins/' . $plugin_type;
+  }
 }
 
 /**
